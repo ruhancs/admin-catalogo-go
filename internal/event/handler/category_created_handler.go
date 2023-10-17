@@ -19,7 +19,7 @@ func NewCategoryCreatedHandler(rabbitMQChannel *amqp.Channel) *CategoryCreatedHa
 	}
 }
 
-func (h *CategoryCreatedHandler) Handle(event events.EventInterface, wg *sync.WaitGroup, key string) {
+func (h *CategoryCreatedHandler) Handle(event events.EventInterface, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fmt.Printf("Category created: %v", event.GetPayload())
 	jsonOutput, _ := json.Marshal(event.GetPayload())
@@ -30,10 +30,10 @@ func (h *CategoryCreatedHandler) Handle(event events.EventInterface, wg *sync.Wa
 	}
 
 	h.RabbitMQChannel.Publish(
-		"admin-catalogo", // exchange
-		key,           // key name
-		false,        // mandatory
-		false,        // immediate
-		msgRabbitmq,  // message to publish
+		"admin-catalogo",  // exchange
+		"create_category", // key name
+		false,             // mandatory
+		false,             // immediate
+		msgRabbitmq,       // message to publish
 	)
 }

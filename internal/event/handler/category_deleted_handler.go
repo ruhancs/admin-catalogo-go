@@ -19,7 +19,7 @@ func NewCategoryDeletedHandler(rabbitMQChannel *amqp.Channel) *CategoryDeletedHa
 	}
 }
 
-func (h *CategoryDeletedHandler) Handle(event events.EventInterface, wg *sync.WaitGroup, key string) {
+func (h *CategoryDeletedHandler) Handle(event events.EventInterface, wg *sync.WaitGroup) {
 	defer wg.Done()
 	fmt.Printf("Category Deleted: %v", event.GetPayload())
 	jsonOutput, _ := json.Marshal(event.GetPayload())
@@ -30,10 +30,10 @@ func (h *CategoryDeletedHandler) Handle(event events.EventInterface, wg *sync.Wa
 	}
 
 	h.RabbitMQChannel.Publish(
-		"admin-catalogo", // exchange
-		key,              // key name
-		false,            // mandatory
-		false,            // immediate
-		msgRabbitmq,      // message to publish
+		"admin-catalogo",  // exchange
+		"delete_category", // key name
+		false,             // mandatory
+		false,             // immediate
+		msgRabbitmq,       // message to publish
 	)
 }
