@@ -25,7 +25,7 @@ func(usecase *ListCategoryUseCase) Execute(ctx context.Context, input dto.ListCa
 	outputDto := dto.ListCategoryOutputDto{
 		Items: categories,
 		Total: len(categories),
-		CurrentPage: input.Page,
+		//CurrentPage: input.Page,
 		PerPage: input.PerPage,
 	}
 
