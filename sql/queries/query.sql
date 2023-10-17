@@ -7,5 +7,5 @@ SELECT * FROM categories ORDER BY name LIMIT $1 OFFSET $2;
 -- name: GetCategory :one
 SELECT * FROM categories WHERE id = $1 LIMIT 1;
 
--- name: DeleteAccount :exec
+-- name: DeleteCategory :exec
 DELETE FROM categories WHERE id = $1;

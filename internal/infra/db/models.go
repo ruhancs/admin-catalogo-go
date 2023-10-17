@@ -10,9 +10,9 @@ import (
 )
 
 type Category struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	IsActive    bool           `json:"is_active"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ID          string
+	Name        string
+	Description sql.NullString
+	IsActive    bool
+	CreatedAt   time.Time
 }

@@ -16,11 +16,11 @@ INSERT INTO categories (id,name,description,is_active,created_at) VALUES ($1,$2,
 `
 
 type CreateCategoryParams struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	IsActive    bool           `json:"is_active"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ID          string
+	Name        string
+	Description sql.NullString
+	IsActive    bool
+	CreatedAt   time.Time
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) error {
@@ -34,12 +34,12 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 	return err
 }
 
-const deleteAccount = `-- name: DeleteAccount :exec
+const deleteCategory = `-- name: DeleteCategory :exec
 DELETE FROM categories WHERE id = $1
 `
 
-func (q *Queries) DeleteAccount(ctx context.Context, id string) error {
-	_, err := q.db.ExecContext(ctx, deleteAccount, id)
+func (q *Queries) DeleteCategory(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteCategory, id)
 	return err
 }
 
@@ -65,8 +65,8 @@ SELECT id, name, description, is_active, created_at FROM categories ORDER BY nam
 `
 
 type ListCategoriesParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int32
+	Offset int32
 }
 
 func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) ([]Category, error) {
@@ -75,7 +75,7 @@ func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) 
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Category{}
+	var items []Category
 	for rows.Next() {
 		var i Category
 		if err := rows.Scan(
