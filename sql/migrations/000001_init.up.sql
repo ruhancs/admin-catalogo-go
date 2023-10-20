@@ -5,3 +5,4 @@ CREATE TABLE "categories" (
   "is_active" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
+

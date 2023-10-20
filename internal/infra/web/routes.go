@@ -17,5 +17,7 @@ func (app *Application) routes() http.Handler {
 	mux.Get("/category/{id}",app.GetCategoryByID)
 	mux.Delete("/category/{id}",app.DeleteCategory)
 
+	mux.Post("/register-video",app.RegisterVideoHandler)
+
 	return mux
 }

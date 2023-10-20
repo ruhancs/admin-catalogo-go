@@ -9,3 +9,6 @@ SELECT * FROM categories WHERE id = $1 LIMIT 1;
 
 -- name: DeleteCategory :exec
 DELETE FROM categories WHERE id = $1;
+
+-- name: RegisterVideo :exec
+INSERT INTO videos (id,title,description,duration,is_published,banner,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7);
