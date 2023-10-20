@@ -8,10 +8,40 @@ import (
 	"database/sql"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/joho/godotenv"
-	"github.com/streadway/amqp"
 	_ "github.com/lib/pq"
+	"github.com/streadway/amqp"
 )
+
+var (
+	s3Client *s3.S3
+)
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	sess,err := session.NewSession(
+		&aws.Config{
+			Region: aws.String(os.Getenv("REGION")),
+			Credentials: credentials.NewStaticCredentials(
+				os.Getenv("PK"),
+				os.Getenv("SK"),
+				"",
+			),
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	s3Client = s3.New(sess)
+}
 
 func main() {
 	err := godotenv.Load()
@@ -33,13 +63,24 @@ func main() {
 	eventDispatcher.Register("CategoryDeleted", &handler.CategoryDeletedHandler{
 		RabbitMQChannel: rabbitMQChannel,
 	})
+	eventDispatcher.Register("VideoRegistered", &handler.VideoRegisteredHandler{
+		RabbitMQChannel: rabbitMQChannel,
+	})
 
 	createCategoryUseCase := factory.CreateCategoryUseCaseFactory(db,eventDispatcher)
 	listCategoryUseCase := factory.ListCategoryUsecaseFactory(db)
 	getCategoryUseCase := factory.GetCategoryByIDUsecaseFactory(db)
 	deleteCategoryUseCase := factory.DeleteCategoryUsecaseFactory(db,eventDispatcher)
 
-	app := web.NewApplication(*createCategoryUseCase, *getCategoryUseCase, *deleteCategoryUseCase,*listCategoryUseCase)
+	registerVideoUseCase := factory.RegisterVideoUseCaseFactory(db,eventDispatcher,s3Client)
+
+	app := web.NewApplication(
+		*createCategoryUseCase, 
+		*getCategoryUseCase, 
+		*deleteCategoryUseCase,
+		*listCategoryUseCase,
+		*registerVideoUseCase,
+	)
 
 	app.Server()
 }
