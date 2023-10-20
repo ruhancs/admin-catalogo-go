@@ -16,3 +16,13 @@ type Category struct {
 	IsActive    bool
 	CreatedAt   time.Time
 }
+
+type Video struct {
+	ID          string
+	Title       string
+	Description sql.NullString
+	Duration    sql.NullInt64
+	IsPublished bool
+	Banner      sql.NullString
+	CreatedAt   time.Time
+}

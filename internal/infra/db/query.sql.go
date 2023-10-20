@@ -97,3 +97,30 @@ func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) 
 	}
 	return items, nil
 }
+
+const registerVideo = `-- name: RegisterVideo :exec
+INSERT INTO videos (id,title,description,duration,is_published,banner,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)
+`
+
+type RegisterVideoParams struct {
+	ID          string
+	Title       string
+	Description sql.NullString
+	Duration    sql.NullInt64
+	IsPublished bool
+	Banner      sql.NullString
+	CreatedAt   time.Time
+}
+
+func (q *Queries) RegisterVideo(ctx context.Context, arg RegisterVideoParams) error {
+	_, err := q.db.ExecContext(ctx, registerVideo,
+		arg.ID,
+		arg.Title,
+		arg.Description,
+		arg.Duration,
+		arg.IsPublished,
+		arg.Banner,
+		arg.CreatedAt,
+	)
+	return err
+}
