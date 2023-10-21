@@ -9,6 +9,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const createCategory = `-- name: CreateCategory :exec
@@ -60,6 +62,28 @@ func (q *Queries) GetCategory(ctx context.Context, id string) (Category, error) 
 	return i, err
 }
 
+const getVideoById = `-- name: GetVideoById :one
+SELECT id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at FROM videos WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetVideoById(ctx context.Context, id string) (Video, error) {
+	row := q.db.QueryRowContext(ctx, getVideoById, id)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Duration,
+		&i.YearLaunched,
+		&i.IsPublished,
+		&i.BannerUrl,
+		&i.VideoUrl,
+		pq.Array(&i.CategoriesID),
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listCategories = `-- name: ListCategories :many
 SELECT id, name, description, is_active, created_at FROM categories ORDER BY name LIMIT $1 OFFSET $2
 `
@@ -99,17 +123,20 @@ func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) 
 }
 
 const registerVideo = `-- name: RegisterVideo :exec
-INSERT INTO videos (id,title,description,duration,is_published,banner,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)
+INSERT INTO videos (id,title,description,duration,year_launched,is_published,banner_url,video_url,categories_id,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 `
 
 type RegisterVideoParams struct {
-	ID          string
-	Title       string
-	Description sql.NullString
-	Duration    sql.NullInt64
-	IsPublished bool
-	Banner      sql.NullString
-	CreatedAt   time.Time
+	ID           string
+	Title        string
+	Description  sql.NullString
+	Duration     sql.NullInt64
+	YearLaunched int64
+	IsPublished  bool
+	BannerUrl    sql.NullString
+	VideoUrl     sql.NullString
+	CategoriesID []string
+	CreatedAt    time.Time
 }
 
 func (q *Queries) RegisterVideo(ctx context.Context, arg RegisterVideoParams) error {
@@ -118,8 +145,11 @@ func (q *Queries) RegisterVideo(ctx context.Context, arg RegisterVideoParams) er
 		arg.Title,
 		arg.Description,
 		arg.Duration,
+		arg.YearLaunched,
 		arg.IsPublished,
-		arg.Banner,
+		arg.BannerUrl,
+		arg.VideoUrl,
+		pq.Array(arg.CategoriesID),
 		arg.CreatedAt,
 	)
 	return err

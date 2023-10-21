@@ -7,4 +7,5 @@ import (
 
 type VideoRepositoryInterface interface {
 	Insert(ctx context.Context,video *entity.Video) error
+	GetVideoByID(ctx context.Context, id string) (entity.Video,error)
 }

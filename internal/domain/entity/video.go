@@ -14,7 +14,8 @@ type Video struct {
 	YearLaunched int       `json:"year_launched" valid:"required"`
 	Duration     float64   `json:"duration"`
 	IsPublished  bool      `json:"is_published"`
-	Banner       string    `json:"banner"`
+	BannerUrl    string    `json:"banner_url"`
+	VideoUrl     string    `json:"video_url"`
 	CategoriesID []string  `json:"categories_id"`
 	CreatedAt    time.Time `json:"created_at"`
 }
@@ -24,7 +25,9 @@ func NewVideo(
 	description string,
 	yearLaunched int,
 	duration float64,
-	//categoriesID []string,
+	bannerUrl string,
+	videorUrl string,
+	categoriesID []string,
 ) (*Video, error) {
 	video := &Video{
 		ID:           uuid.NewV4().String(),
@@ -32,8 +35,10 @@ func NewVideo(
 		Description:  description,
 		YearLaunched: yearLaunched,
 		Duration:     duration,
+		BannerUrl:    bannerUrl,
+		VideoUrl:     videorUrl,
 		IsPublished:  false,
-		//CategoriesID: categoriesID,
+		CategoriesID: categoriesID,
 		CreatedAt:    time.Now(),
 	}
 	err := video.Validate()

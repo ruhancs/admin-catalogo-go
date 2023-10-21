@@ -18,11 +18,14 @@ type Category struct {
 }
 
 type Video struct {
-	ID          string
-	Title       string
-	Description sql.NullString
-	Duration    sql.NullInt64
-	IsPublished bool
-	Banner      sql.NullString
-	CreatedAt   time.Time
+	ID           string
+	Title        string
+	Description  sql.NullString
+	Duration     sql.NullInt64
+	YearLaunched int64
+	IsPublished  bool
+	BannerUrl    sql.NullString
+	VideoUrl     sql.NullString
+	CategoriesID []string
+	CreatedAt    time.Time
 }

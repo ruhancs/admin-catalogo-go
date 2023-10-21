@@ -11,4 +11,7 @@ SELECT * FROM categories WHERE id = $1 LIMIT 1;
 DELETE FROM categories WHERE id = $1;
 
 -- name: RegisterVideo :exec
-INSERT INTO videos (id,title,description,duration,is_published,banner,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7);
+INSERT INTO videos (id,title,description,duration,year_launched,is_published,banner_url,video_url,categories_id,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);
+
+-- name: GetVideoById :one
+SELECT * FROM videos WHERE id = $1 LIMIT 1;

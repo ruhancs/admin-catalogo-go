@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -44,6 +45,7 @@ func (app *Application) errorJson(w http.ResponseWriter, err error, status ...in
 	var payload jsonResponse
 	payload.Error = true
 	payload.Message = err.Error()
+	log.Println(err)
 	
 	return app.writeJson(w,statusCode,payload)
 }

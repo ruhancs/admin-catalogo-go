@@ -26,7 +26,9 @@ func (repository *VideoRepository) Insert(ctx context.Context,video *entity.Vide
 		Description: sql.NullString{String: video.Description, Valid: true},
 		Duration: sql.NullInt64{Int64: int64(video.Duration), Valid: true},
 		IsPublished: video.IsPublished,
-		Banner: sql.NullString{String: video.Banner, Valid: true},
+		BannerUrl: sql.NullString{String: video.BannerUrl, Valid: true},
+		VideoUrl: sql.NullString{String: video.VideoUrl, Valid: true},
+		CategoriesID: video.CategoriesID,
 		CreatedAt: video.CreatedAt,
 	})
 
@@ -35,4 +37,26 @@ func (repository *VideoRepository) Insert(ctx context.Context,video *entity.Vide
 	}
 
 	return nil
+}
+
+func (repository *VideoRepository) GetVideoByID(ctx context.Context, id string) (entity.Video,error){
+	videoModel,err := repository.Queries.GetVideoById(ctx,id)
+	if err != nil {
+		return entity.Video{},err
+	}
+
+	video := entity.Video{
+		ID: videoModel.ID,
+		Title: videoModel.Title,
+		Description: videoModel.Description.String,
+		YearLaunched: int(videoModel.YearLaunched),
+		Duration: float64(videoModel.Duration.Int64),
+		IsPublished: videoModel.IsPublished,
+		BannerUrl: videoModel.BannerUrl.String,
+		VideoUrl: videoModel.VideoUrl.String,
+		CategoriesID: videoModel.CategoriesID,
+		CreatedAt: videoModel.CreatedAt,
+	}
+
+	return video,nil
 }

@@ -6,8 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var categoriesIDs []string
+
 func TestNewVideo(t *testing.T) {
-	video,err := NewVideo("video1","",2004,1.30)
+	video,err := NewVideo("video1","",2004,1.30, "url_banner", "url_video",categoriesIDs)
 
 	assert.Nil(t,err)
 	assert.NotNil(t,video)
@@ -15,7 +17,7 @@ func TestNewVideo(t *testing.T) {
 }
 
 func TestChangeTitle(t *testing.T) {
-	video,err := NewVideo("video1","",2004,1.30)
+	video,err := NewVideo("video1","",2004,1.30, "url_banner", "url_video",categoriesIDs)
 	assert.Nil(t,err)
 	
 	err = video.ChangeTitle("title updated")
@@ -24,7 +26,7 @@ func TestChangeTitle(t *testing.T) {
 }
 
 func TestChangeInvalidTitle(t *testing.T) {
-	video,err := NewVideo("video1","",2004,1.30)
+	video,err := NewVideo("video1","",2004,1.30, "url_banner", "url_video",categoriesIDs)
 	assert.Nil(t,err)
 	
 	err = video.ChangeTitle("")
@@ -33,7 +35,7 @@ func TestChangeInvalidTitle(t *testing.T) {
 }
 
 func TestChangeDescription(t *testing.T) {
-	video,err := NewVideo("video1","",2004,1.30)
+	video,err := NewVideo("video1","",2004,1.30, "url_banner", "url_video",categoriesIDs)
 	assert.Nil(t,err)
 
 	video.ChangeDescription("desc1")
@@ -41,7 +43,7 @@ func TestChangeDescription(t *testing.T) {
 }
 
 func TestMarkPublished(t *testing.T) {
-	video,err := NewVideo("video1","",2004,1.30)
+	video,err := NewVideo("video1","",2004,1.30, "url_banner", "url_video",categoriesIDs)
 	assert.Nil(t,err)
 
 	video.MarkPublished()
