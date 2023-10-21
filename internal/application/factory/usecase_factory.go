@@ -2,6 +2,7 @@ package factory
 
 import (
 	"admin-catalogo-go/internal/application/usecase"
+	"admin-catalogo-go/internal/application/validation"
 	"admin-catalogo-go/internal/event"
 	"admin-catalogo-go/internal/infra/repository"
 	"admin-catalogo-go/pkg/events"
@@ -32,4 +33,10 @@ func DeleteCategoryUsecaseFactory(db *sql.DB,eventDispatcher events.EventDispatc
 	categoryDeletedEvent := event.NewCategoryDeleted()
 	deleteCategoryUseCase := usecase.NewDeleteCategoryUseCase(categoryRepository,categoryDeletedEvent,eventDispatcher)
 	return deleteCategoryUseCase
+}
+
+func CategoryIDValidator(db *sql.DB) *validation.CategoryIDsValidator {
+	categoryRepository := repository.NewCategoryRepository(db)
+	categoryIDValidator := validation.NewCategoryIDsValidator(categoryRepository)
+	return categoryIDValidator
 }

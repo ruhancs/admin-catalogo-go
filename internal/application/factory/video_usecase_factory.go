@@ -2,6 +2,7 @@ package factory
 
 import (
 	"admin-catalogo-go/internal/application/usecase"
+	"admin-catalogo-go/internal/application/validation"
 	"admin-catalogo-go/internal/event"
 	"admin-catalogo-go/internal/infra/repository"
 	"admin-catalogo-go/pkg/events"
@@ -14,9 +15,10 @@ func RegisterVideoUseCaseFactory(
 	db *sql.DB, 
 	eventDispatcher events.EventDispatcherInterface, 
 	s3Client *s3.S3,
+	categoryIDValidator *validation.CategoryIDsValidator,
 ) *usecase.RegisterVideoUseCase {
 	videoRepository := repository.NewVideoRepository(db)
 	videoRegisteredEvent := event.NewVideoRegistered()
-	videoRegisteredUseCase := usecase.NewRegisterVideoUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client)
+	videoRegisteredUseCase := usecase.NewRegisterVideoUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
 	return videoRegisteredUseCase
 }

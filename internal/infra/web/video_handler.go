@@ -3,6 +3,7 @@ package web
 import (
 	"admin-catalogo-go/internal/application/dto"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -26,6 +27,7 @@ func(app *Application) RegisterVideoHandler(w http.ResponseWriter, r *http.Reque
 	
 	err = json.NewDecoder(r.Body).Decode(&inputDto)
 	if err != nil {
+		fmt.Println(err)
 		app.errorJson(w,err,http.StatusBadRequest)
 	}
 	

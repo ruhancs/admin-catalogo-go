@@ -27,7 +27,7 @@ func init() {
 		panic(err)
 	}
 
-	sess,err := session.NewSession(
+	sess, err := session.NewSession(
 		&aws.Config{
 			Region: aws.String(os.Getenv("REGION")),
 			Credentials: credentials.NewStaticCredentials(
@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db,err := sql.Open(os.Getenv("DB_DRIVER"), os.Getenv("DB_SOURCE"))
+	db, err := sql.Open(os.Getenv("DB_DRIVER"), os.Getenv("DB_SOURCE"))
 	if err != nil {
 		panic(err)
 	}
@@ -67,16 +67,17 @@ func main() {
 		RabbitMQChannel: rabbitMQChannel,
 	})
 
-	createCategoryUseCase := factory.CreateCategoryUseCaseFactory(db,eventDispatcher)
+	createCategoryUseCase := factory.CreateCategoryUseCaseFactory(db, eventDispatcher)
 	listCategoryUseCase := factory.ListCategoryUsecaseFactory(db)
 	getCategoryUseCase := factory.GetCategoryByIDUsecaseFactory(db)
-	deleteCategoryUseCase := factory.DeleteCategoryUsecaseFactory(db,eventDispatcher)
+	deleteCategoryUseCase := factory.DeleteCategoryUsecaseFactory(db, eventDispatcher)
 
-	registerVideoUseCase := factory.RegisterVideoUseCaseFactory(db,eventDispatcher,s3Client)
+	categoryIDValidator := factory.CategoryIDValidator(db)
+	registerVideoUseCase := factory.RegisterVideoUseCaseFactory(db, eventDispatcher, s3Client, categoryIDValidator)
 
 	app := web.NewApplication(
-		*createCategoryUseCase, 
-		*getCategoryUseCase, 
+		*createCategoryUseCase,
+		*getCategoryUseCase,
 		*deleteCategoryUseCase,
 		*listCategoryUseCase,
 		*registerVideoUseCase,
