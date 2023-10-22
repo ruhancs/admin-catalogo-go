@@ -8,11 +8,15 @@ import (
 )
 
 type Application struct {
-	CreateCategoryUseCase usecase.CreateCategoryUseCase
-	GetCategoryUseCase    usecase.GetCategoryUseCase
-	DeleteCategoryUseCase usecase.DeleteCategoryUseCase
-	ListCategoryUseCase   usecase.ListCategoryUseCase
-	RegisterVideoUseCase  usecase.RegisterVideoUseCase
+	CreateCategoryUseCase         usecase.CreateCategoryUseCase
+	GetCategoryUseCase            usecase.GetCategoryUseCase
+	DeleteCategoryUseCase         usecase.DeleteCategoryUseCase
+	ListCategoryUseCase           usecase.ListCategoryUseCase
+	RegisterVideoUseCase          usecase.RegisterVideoUseCase
+	ListVideosUseCase             usecase.ListVideoUseCase
+	GetVideoByIDUseCase           usecase.GetVideoByIDUseCase
+	GetVideoByCategoryUseCase     usecase.GetVideoByCategoryUseCase
+	UpdateVideoToPublishedUseCase usecase.UpdateVideoToPublishUseCase
 }
 
 func NewApplication(
@@ -21,13 +25,21 @@ func NewApplication(
 	deleteCategoryUseCase usecase.DeleteCategoryUseCase,
 	listCategoryUseCase usecase.ListCategoryUseCase,
 	registerVideoUseCase usecase.RegisterVideoUseCase,
+	listVideosUseCase usecase.ListVideoUseCase,
+	getVideoByIDUseCase usecase.GetVideoByIDUseCase,
+	getVideoByCategoryUseCase usecase.GetVideoByCategoryUseCase,
+	updateVideoToPublishedUseCase usecase.UpdateVideoToPublishUseCase,
 ) *Application {
 	return &Application{
-		CreateCategoryUseCase: createCategoryUseCase,
-		ListCategoryUseCase:   listCategoryUseCase,
-		GetCategoryUseCase:    getCategoryUseCase,
-		DeleteCategoryUseCase: deleteCategoryUseCase,
-		RegisterVideoUseCase:  registerVideoUseCase,
+		CreateCategoryUseCase:     createCategoryUseCase,
+		ListCategoryUseCase:       listCategoryUseCase,
+		GetCategoryUseCase:        getCategoryUseCase,
+		DeleteCategoryUseCase:     deleteCategoryUseCase,
+		RegisterVideoUseCase:      registerVideoUseCase,
+		ListVideosUseCase:         listVideosUseCase,
+		GetVideoByIDUseCase:       getVideoByIDUseCase,
+		GetVideoByCategoryUseCase: getVideoByCategoryUseCase,
+		UpdateVideoToPublishedUseCase: updateVideoToPublishedUseCase,
 	}
 }
 

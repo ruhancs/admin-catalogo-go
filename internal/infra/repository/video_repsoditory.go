@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"admin-catalogo-go/internal/application/dto"
 	"admin-catalogo-go/internal/domain/entity"
 	"admin-catalogo-go/internal/infra/db"
 	"context"
@@ -39,6 +40,36 @@ func (repository *VideoRepository) Insert(ctx context.Context,video *entity.Vide
 	return nil
 }
 
+func (repository *VideoRepository) ListVideos(ctx context.Context, input dto.ListVideoInputDto) ([]entity.Video,error) {
+	offset := (input.Page - 1) * input.PerPage
+	videosModel,err := repository.Queries.ListVideos(ctx,db.ListVideosParams{
+		Limit: int32(input.PerPage),
+		Offset: int32(offset),
+	})
+	if err != nil {
+		return nil,nil
+	}
+
+	var videosEntity []entity.Video
+	for _,videoModel := range videosModel {
+		video := entity.Video{
+			ID: videoModel.ID,
+			Title: videoModel.Title,
+			Description: videoModel.Description.String,
+			YearLaunched: int(videoModel.YearLaunched),
+			Duration: float64(videoModel.Duration.Int64),
+			IsPublished: videoModel.IsPublished,
+			BannerUrl: videoModel.BannerUrl.String,
+			VideoUrl: videoModel.VideoUrl.String,
+			CategoriesID: videoModel.CategoriesID,
+			CreatedAt: videoModel.CreatedAt,
+		}
+		videosEntity = append(videosEntity, video)
+	}
+
+	return videosEntity,nil
+}
+
 func (repository *VideoRepository) GetVideoByID(ctx context.Context, id string) (entity.Video,error){
 	videoModel,err := repository.Queries.GetVideoById(ctx,id)
 	if err != nil {
@@ -59,4 +90,42 @@ func (repository *VideoRepository) GetVideoByID(ctx context.Context, id string) 
 	}
 
 	return video,nil
+}
+
+func (repository *VideoRepository) GetVideoByCategoryID(ctx context.Context, categoryID string) ([]entity.Video,error) {
+	categoriesID := []string{categoryID}
+	videosModel,err := repository.Queries.GetVideoByCategoryId(ctx, categoriesID)
+	if err != nil {
+		return nil,err
+	}
+
+	var videos []entity.Video
+	for _,video := range videosModel {
+		videoEntity := entity.Video{
+			ID: video.ID,
+			Title: video.Title,
+			Description: video.Description.String,
+			YearLaunched: int(video.YearLaunched),
+			Duration: float64(video.Duration.Int64),
+			IsPublished: video.IsPublished,
+			BannerUrl: video.BannerUrl.String,
+			VideoUrl: video.VideoUrl.String,
+			CategoriesID: video.CategoriesID,
+			CreatedAt: video.CreatedAt,
+		}
+		videos = append(videos, videoEntity)
+	}
+
+	return videos,nil
+}
+
+func (repository *VideoRepository) UpdatePublishState(ctx context.Context,id string, input dto.UpdateVideoPublishStateInputDto) error{
+	_,err := repository.Queries.UpdateVideoIsPublished(ctx,db.UpdateVideoIsPublishedParams{
+		ID: id,
+		IsPublished: input.IsPublished,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

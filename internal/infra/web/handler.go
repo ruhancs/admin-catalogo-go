@@ -26,14 +26,21 @@ func(app *Application) CreateCategoryHandler(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) ListcategoryHandler(w http.ResponseWriter, r *http.Request) {
 	var limit int
+	var page int
 	queryLimit := r.URL.Query().Get("limit")
+	queryPage := r.URL.Query().Get("page")
 	limit,err := strconv.Atoi(queryLimit)
 	if err != nil {
 		limit = 10
 	}
+	page,err = strconv.Atoi(queryPage)
+	if err != nil {
+		page = 1
+	}
 
 	inputListCategoryDto := dto.ListCategoryInputDto{
 		PerPage: limit,
+		Page: page,
 	}
 	output,err := app.ListCategoryUseCase.Execute(r.Context(),inputListCategoryDto)
 	if err != nil {

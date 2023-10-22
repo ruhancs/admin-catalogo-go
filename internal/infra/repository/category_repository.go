@@ -55,9 +55,10 @@ func (repo *CategoryRepository) FindByID(ctx context.Context, id string) (entity
 }
 
 func (repo *CategoryRepository) ListCategory(ctx context.Context, params dto.ListCategoryInputDto) ([]entity.Category,error) {
+	offset := (params.Page - 1) * params.PerPage
 	categoriesModel,err := repo.Queries.ListCategories(ctx, db.ListCategoriesParams{
 		Limit: int32(params.PerPage),
-		//Offset: (int32(params.Page) - 1) * int32(params.PerPage),
+		Offset: int32(offset),
 	})
 	if err != nil {
 		return nil,err

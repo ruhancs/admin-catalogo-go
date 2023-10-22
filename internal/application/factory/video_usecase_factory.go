@@ -22,3 +22,31 @@ func RegisterVideoUseCaseFactory(
 	videoRegisteredUseCase := usecase.NewRegisterVideoUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
 	return videoRegisteredUseCase
 }
+
+func ListVideosUsecaseFactory(db *sql.DB) *usecase.ListVideoUseCase {
+	videoRepository := repository.NewVideoRepository(db)
+	listVideoUseCase := usecase.NewListVideoUseCase(videoRepository)
+	return listVideoUseCase
+}
+
+func GetVideoByIDUsecaseFactory(db *sql.DB) *usecase.GetVideoByIDUseCase {
+	videoRepository := repository.NewVideoRepository(db)
+	getVideoByIdUseCase := usecase.NewGetVideoByIDUseCase(videoRepository)
+	return getVideoByIdUseCase
+}
+
+func GetVideoByCategoryUsecaseFactory(db *sql.DB) *usecase.GetVideoByCategoryUseCase {
+	videoRepository := repository.NewVideoRepository(db)
+	getVideoByCategoryUseCase := usecase.NewGetVideoByCategoryUseCase(videoRepository)
+	return getVideoByCategoryUseCase
+}
+
+func UpdateVideoPublishedUseCaseFactory(
+	db *sql.DB, 
+	eventDispatcher events.EventDispatcherInterface, 
+) *usecase.UpdateVideoToPublishUseCase {
+	videoRepository := repository.NewVideoRepository(db)
+	videoPublishedEvent := event.NewVideoPublish()
+	updateVideoPublishUseCase := usecase.NewUpdateVideoToPublishUseCase(videoRepository,videoPublishedEvent,eventDispatcher)
+	return updateVideoPublishUseCase
+}

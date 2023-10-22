@@ -20,7 +20,7 @@ type CreateCategoryOutputDto struct {
 
 type ListCategoryInputDto struct {
 	PerPage int `json:"per_page"`
-	//Page    int `json:"page"`
+	Page    int `json:"page"`
 	//Sort    string
 	//Filter  string
 }
@@ -28,7 +28,7 @@ type ListCategoryInputDto struct {
 type ListCategoryOutputDto struct {
 	Items       []entity.Category `json:"items"`
 	Total       int `json:"total"`
-	//CurrentPage int `json:"current_page"`
+	CurrentPage int `json:"current_page"`
 	//LastPage int
 	PerPage int `json:"per_page"`
 }

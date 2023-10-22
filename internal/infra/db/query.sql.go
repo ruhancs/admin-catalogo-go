@@ -62,6 +62,44 @@ func (q *Queries) GetCategory(ctx context.Context, id string) (Category, error) 
 	return i, err
 }
 
+const getVideoByCategoryId = `-- name: GetVideoByCategoryId :many
+SELECT id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at FROM videos WHERE categories_id @> ARRAY[$1]
+`
+
+func (q *Queries) GetVideoByCategoryId(ctx context.Context, categoriesID []string) ([]Video, error) {
+	rows, err := q.db.QueryContext(ctx, getVideoByCategoryId, pq.Array(categoriesID))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Duration,
+			&i.YearLaunched,
+			&i.IsPublished,
+			&i.BannerUrl,
+			&i.VideoUrl,
+			pq.Array(&i.CategoriesID),
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getVideoById = `-- name: GetVideoById :one
 SELECT id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at FROM videos WHERE id = $1 LIMIT 1
 `
@@ -122,6 +160,49 @@ func (q *Queries) ListCategories(ctx context.Context, arg ListCategoriesParams) 
 	return items, nil
 }
 
+const listVideos = `-- name: ListVideos :many
+SELECT id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at FROM videos ORDER BY title LIMIT $1 OFFSET $2
+`
+
+type ListVideosParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListVideos(ctx context.Context, arg ListVideosParams) ([]Video, error) {
+	rows, err := q.db.QueryContext(ctx, listVideos, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Video
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Duration,
+			&i.YearLaunched,
+			&i.IsPublished,
+			&i.BannerUrl,
+			&i.VideoUrl,
+			pq.Array(&i.CategoriesID),
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const registerVideo = `-- name: RegisterVideo :exec
 INSERT INTO videos (id,title,description,duration,year_launched,is_published,banner_url,video_url,categories_id,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
 `
@@ -153,4 +234,31 @@ func (q *Queries) RegisterVideo(ctx context.Context, arg RegisterVideoParams) er
 		arg.CreatedAt,
 	)
 	return err
+}
+
+const updateVideoIsPublished = `-- name: UpdateVideoIsPublished :one
+UPDATE videos SET is_published = $2 WHERE id = $1 RETURNING id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at
+`
+
+type UpdateVideoIsPublishedParams struct {
+	ID          string
+	IsPublished bool
+}
+
+func (q *Queries) UpdateVideoIsPublished(ctx context.Context, arg UpdateVideoIsPublishedParams) (Video, error) {
+	row := q.db.QueryRowContext(ctx, updateVideoIsPublished, arg.ID, arg.IsPublished)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Duration,
+		&i.YearLaunched,
+		&i.IsPublished,
+		&i.BannerUrl,
+		&i.VideoUrl,
+		pq.Array(&i.CategoriesID),
+		&i.CreatedAt,
+	)
+	return i, err
 }
