@@ -66,6 +66,9 @@ func main() {
 	eventDispatcher.Register("VideoRegistered", &handler.VideoRegisteredHandler{
 		RabbitMQChannel: rabbitMQChannel,
 	})
+	eventDispatcher.Register("VideoPublished", &handler.VideoPublishedHandler{
+		RabbitMQChannel: rabbitMQChannel,
+	})
 
 	createCategoryUseCase := factory.CreateCategoryUseCaseFactory(db, eventDispatcher)
 	listCategoryUseCase := factory.ListCategoryUsecaseFactory(db)
@@ -74,6 +77,10 @@ func main() {
 
 	categoryIDValidator := factory.CategoryIDValidator(db)
 	registerVideoUseCase := factory.RegisterVideoUseCaseFactory(db, eventDispatcher, s3Client, categoryIDValidator)
+	listVideosUseCase := factory.ListVideosUsecaseFactory(db)
+	getVideoByIDUseCase := factory.GetVideoByIDUsecaseFactory(db)
+	getVideoByCategoryUseCase := factory.GetVideoByCategoryUsecaseFactory(db)
+	updateVideoToPublishUseCase := factory.UpdateVideoPublishedUseCaseFactory(db,eventDispatcher)
 
 	app := web.NewApplication(
 		*createCategoryUseCase,
@@ -81,6 +88,10 @@ func main() {
 		*deleteCategoryUseCase,
 		*listCategoryUseCase,
 		*registerVideoUseCase,
+		*listVideosUseCase,
+		*getVideoByIDUseCase,
+		*getVideoByCategoryUseCase,
+		*updateVideoToPublishUseCase,
 	)
 
 	app.Server()

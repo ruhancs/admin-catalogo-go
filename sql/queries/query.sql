@@ -13,5 +13,14 @@ DELETE FROM categories WHERE id = $1;
 -- name: RegisterVideo :exec
 INSERT INTO videos (id,title,description,duration,year_launched,is_published,banner_url,video_url,categories_id,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);
 
+-- name: ListVideos :many
+SELECT * FROM videos ORDER BY title LIMIT $1 OFFSET $2;
+
 -- name: GetVideoById :one
 SELECT * FROM videos WHERE id = $1 LIMIT 1;
+
+-- name: GetVideoByCategoryId :many
+SELECT * FROM videos WHERE categories_id @> ARRAY[$1];
+
+-- name: UpdateVideoIsPublished :one
+UPDATE videos SET is_published = $2 WHERE id = $1 RETURNING *;

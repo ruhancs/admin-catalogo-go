@@ -9,19 +9,19 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type VideoRegisteredHandler struct {
+type VideoPublishedHandler struct {
 	RabbitMQChannel *amqp.Channel
 }
 
-func NewVideoRegisteredHandler(rabbitMQChannel *amqp.Channel) *VideoRegisteredHandler {
-	return &VideoRegisteredHandler{
+func NewVideoPublishedHandler(rabbitMQChannel *amqp.Channel) *VideoPublishedHandler {
+	return &VideoPublishedHandler{
 		RabbitMQChannel: rabbitMQChannel,
 	}
 }
 
-func (h *VideoRegisteredHandler) Handle(event events.EventInterface, wg *sync.WaitGroup) {
+func (h *VideoPublishedHandler) Handle(event events.EventInterface, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fmt.Printf("Video Registered: %v", event.GetPayload())
+	fmt.Printf("Video Published: %v", event.GetPayload())
 	jsonOutput, _ := json.Marshal(event.GetPayload())
 
 	msgRabbitmq := amqp.Publishing{
@@ -31,7 +31,7 @@ func (h *VideoRegisteredHandler) Handle(event events.EventInterface, wg *sync.Wa
 
 	h.RabbitMQChannel.Publish(
 		"admin-catalogo", // exchange
-		"register_video", // key name
+		"publish_video",  // key name
 		false,            // mandatory
 		false,            // immediate
 		msgRabbitmq,      // message to publish
