@@ -11,15 +11,27 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func RegisterVideoUseCaseFactory(
+func RegisterVideoFileUseCaseFactory(
 	db *sql.DB, 
 	eventDispatcher events.EventDispatcherInterface, 
 	s3Client *s3.S3,
 	categoryIDValidator *validation.CategoryIDsValidator,
-) *usecase.RegisterVideoUseCase {
+) *usecase.RegisterVideoFileUseCase {
 	videoRepository := repository.NewVideoRepository(db)
 	videoRegisteredEvent := event.NewVideoRegistered()
-	videoRegisteredUseCase := usecase.NewRegisterVideoUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
+	videoRegisteredUseCase := usecase.NewRegisterVideoFileUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
+	return videoRegisteredUseCase
+}
+
+func RegisterVideoMetaUseCaseFactory(
+	db *sql.DB, 
+	eventDispatcher events.EventDispatcherInterface, 
+	s3Client *s3.S3,
+	categoryIDValidator *validation.CategoryIDsValidator,
+) *usecase.RegisterVideoMetaUseCase {
+	videoRepository := repository.NewVideoRepository(db)
+	videoRegisteredEvent := event.NewVideoRegistered()
+	videoRegisteredUseCase := usecase.NewRegisterVideoMetaUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
 	return videoRegisteredUseCase
 }
 

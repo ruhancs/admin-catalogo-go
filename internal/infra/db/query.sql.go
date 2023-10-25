@@ -236,6 +236,34 @@ func (q *Queries) RegisterVideo(ctx context.Context, arg RegisterVideoParams) er
 	return err
 }
 
+const updateVideoFiles = `-- name: UpdateVideoFiles :one
+UPDATE videos SET video_url = $2, banner_url = $3 WHERE id = $1 RETURNING id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at
+`
+
+type UpdateVideoFilesParams struct {
+	ID        string
+	VideoUrl  sql.NullString
+	BannerUrl sql.NullString
+}
+
+func (q *Queries) UpdateVideoFiles(ctx context.Context, arg UpdateVideoFilesParams) (Video, error) {
+	row := q.db.QueryRowContext(ctx, updateVideoFiles, arg.ID, arg.VideoUrl, arg.BannerUrl)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Duration,
+		&i.YearLaunched,
+		&i.IsPublished,
+		&i.BannerUrl,
+		&i.VideoUrl,
+		pq.Array(&i.CategoriesID),
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateVideoIsPublished = `-- name: UpdateVideoIsPublished :one
 UPDATE videos SET is_published = $2 WHERE id = $1 RETURNING id, title, description, duration, year_launched, is_published, banner_url, video_url, categories_id, created_at
 `

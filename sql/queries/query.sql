@@ -22,5 +22,8 @@ SELECT * FROM videos WHERE id = $1 LIMIT 1;
 -- name: GetVideoByCategoryId :many
 SELECT * FROM videos WHERE categories_id @> ARRAY[$1];
 
+-- name: UpdateVideoFiles :one
+UPDATE videos SET video_url = $2, banner_url = $3 WHERE id = $1 RETURNING *;
+
 -- name: UpdateVideoIsPublished :one
 UPDATE videos SET is_published = $2 WHERE id = $1 RETURNING *;

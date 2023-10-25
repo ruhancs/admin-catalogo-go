@@ -11,5 +11,6 @@ type VideoRepositoryInterface interface {
 	ListVideos(ctx context.Context, input dto.ListVideoInputDto) ([]entity.Video,error)
 	GetVideoByID(ctx context.Context, id string) (entity.Video,error)
 	GetVideoByCategoryID(ctx context.Context, categoryID string) ([]entity.Video,error)
+	UpdateFiles(ctx context.Context,id string, videoUrl,bannerUrl string) (entity.Video,error)
 	UpdatePublishState(ctx context.Context,id string, input dto.UpdateVideoPublishStateInputDto) error
 }

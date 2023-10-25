@@ -119,6 +119,32 @@ func (repository *VideoRepository) GetVideoByCategoryID(ctx context.Context, cat
 	return videos,nil
 }
 
+func (repository *VideoRepository) UpdateFiles(ctx context.Context,id string, videoUrl,bannerUrl string) (entity.Video,error){
+	videoModel,err := repository.Queries.UpdateVideoFiles(ctx, db.UpdateVideoFilesParams{
+		ID: id,
+		VideoUrl: sql.NullString{String: videoUrl,Valid: true},
+		BannerUrl: sql.NullString{String: bannerUrl,Valid: true},
+	})
+	if err != nil {
+		return entity.Video{},err
+	}
+
+	videoEntity := entity.Video{
+		ID: videoModel.ID,
+		Title: videoModel.Title,
+		Description: videoModel.Description.String,
+		YearLaunched: int(videoModel.YearLaunched),
+		Duration: float64(videoModel.Duration.Int64),
+		VideoUrl: videoModel.VideoUrl.String,
+		BannerUrl: videoModel.BannerUrl.String,
+		CategoriesID: videoModel.CategoriesID,
+		IsPublished: videoModel.IsPublished,
+		CreatedAt: videoModel.CreatedAt,
+	}
+
+	return videoEntity,nil
+}
+
 func (repository *VideoRepository) UpdatePublishState(ctx context.Context,id string, input dto.UpdateVideoPublishStateInputDto) error{
 	_,err := repository.Queries.UpdateVideoIsPublished(ctx,db.UpdateVideoIsPublishedParams{
 		ID: id,

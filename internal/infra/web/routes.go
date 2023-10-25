@@ -17,11 +17,12 @@ func (app *Application) routes() http.Handler {
 	mux.Get("/category/{id}",app.GetCategoryByID)
 	mux.Delete("/category/{id}",app.DeleteCategory)
 
-	mux.Post("/register-video",app.RegisterVideoHandler)
-	mux.Get("/videos",app.GetVideoByIDHandler)
+	mux.Post("/register-video-info",app.RegisterVideoMetaHandler)
+	mux.Post("/register-video-files/{id}",app.RegisterVideoFilesHandler)
+	mux.Get("/videos",app.ListVideosHandler)
 	mux.Get("/video/{id}",app.GetVideoByIDHandler)
 	mux.Get("/video/{category_id}",app.GetVideoByCategoryHandler)
-	mux.Patch("/video/{id}",app.RegisterVideoHandler)
+	mux.Patch("/video/{id}",app.UpadteVideoPublishStateHandler)
 
 	return mux
 }

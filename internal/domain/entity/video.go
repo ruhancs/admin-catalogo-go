@@ -25,8 +25,6 @@ func NewVideo(
 	description string,
 	yearLaunched int,
 	duration float64,
-	bannerUrl string,
-	videorUrl string,
 	categoriesID []string,
 ) (*Video, error) {
 	video := &Video{
@@ -35,8 +33,6 @@ func NewVideo(
 		Description:  description,
 		YearLaunched: yearLaunched,
 		Duration:     duration,
-		BannerUrl:    bannerUrl,
-		VideoUrl:     videorUrl,
 		IsPublished:  false,
 		CategoriesID: categoriesID,
 		CreatedAt:    time.Now(),

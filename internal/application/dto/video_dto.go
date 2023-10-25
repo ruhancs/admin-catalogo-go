@@ -6,19 +6,31 @@ import (
 	"time"
 )
 
-type RegisterVideoInputDto struct {
+type RegisterVideoMetaInputDto struct {
 	Title         string         `json:"title"`
 	Description   string         `json:"description"`
 	YearLaunched  int            `json:"year_launched"`
 	CategoriesIDs []string       `json:"categories_ids"`
-	Banner        multipart.File `json:"banner"`
-	Video         multipart.File `json:"video"`
-	BannerName    string         `json:"-"`
-	VideoName     string         `json:"-"`
+	//BannerName    string         `json:"banner_name"`
+	//VideoName     string         `json:"video_name"`
 	Duration      float64        `json:"duration"`
 }
 
-type RegisterVideoOutputDto struct {
+type RegisterVideoMetaOutputDto struct {
+	Title         string   `json:"title"`
+	Description   string   `json:"description"`
+	YearLaunched  int      `json:"year_launched"`
+	CategoriesIDs []string `json:"categories_ids"`
+	Duration      float64  `json:"duration"`
+	IsPublished   bool     `json:"is_published"`
+}
+
+type RegisterVideoFilesInputDto struct {
+	Banner        multipart.File `json:"banner"`
+	Video         multipart.File `json:"video"`
+}
+
+type RegisterVideoFilesOutputDto struct {
 	Title         string   `json:"title"`
 	Description   string   `json:"description"`
 	YearLaunched  int      `json:"year_launched"`

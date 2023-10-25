@@ -12,7 +12,8 @@ type Application struct {
 	GetCategoryUseCase            usecase.GetCategoryUseCase
 	DeleteCategoryUseCase         usecase.DeleteCategoryUseCase
 	ListCategoryUseCase           usecase.ListCategoryUseCase
-	RegisterVideoUseCase          usecase.RegisterVideoUseCase
+	RegisterVideoFileUseCase      usecase.RegisterVideoFileUseCase
+	RegisterVideoMetatUseCase     usecase.RegisterVideoMetaUseCase
 	ListVideosUseCase             usecase.ListVideoUseCase
 	GetVideoByIDUseCase           usecase.GetVideoByIDUseCase
 	GetVideoByCategoryUseCase     usecase.GetVideoByCategoryUseCase
@@ -24,21 +25,23 @@ func NewApplication(
 	getCategoryUseCase usecase.GetCategoryUseCase,
 	deleteCategoryUseCase usecase.DeleteCategoryUseCase,
 	listCategoryUseCase usecase.ListCategoryUseCase,
-	registerVideoUseCase usecase.RegisterVideoUseCase,
+	registerVideoUseCase usecase.RegisterVideoFileUseCase,
+	registerVideoMetatUseCase usecase.RegisterVideoMetaUseCase,
 	listVideosUseCase usecase.ListVideoUseCase,
 	getVideoByIDUseCase usecase.GetVideoByIDUseCase,
 	getVideoByCategoryUseCase usecase.GetVideoByCategoryUseCase,
 	updateVideoToPublishedUseCase usecase.UpdateVideoToPublishUseCase,
 ) *Application {
 	return &Application{
-		CreateCategoryUseCase:     createCategoryUseCase,
-		ListCategoryUseCase:       listCategoryUseCase,
-		GetCategoryUseCase:        getCategoryUseCase,
-		DeleteCategoryUseCase:     deleteCategoryUseCase,
-		RegisterVideoUseCase:      registerVideoUseCase,
-		ListVideosUseCase:         listVideosUseCase,
-		GetVideoByIDUseCase:       getVideoByIDUseCase,
-		GetVideoByCategoryUseCase: getVideoByCategoryUseCase,
+		CreateCategoryUseCase:         createCategoryUseCase,
+		ListCategoryUseCase:           listCategoryUseCase,
+		GetCategoryUseCase:            getCategoryUseCase,
+		DeleteCategoryUseCase:         deleteCategoryUseCase,
+		RegisterVideoFileUseCase:      registerVideoUseCase,
+		RegisterVideoMetatUseCase:     registerVideoMetatUseCase,
+		ListVideosUseCase:             listVideosUseCase,
+		GetVideoByIDUseCase:           getVideoByIDUseCase,
+		GetVideoByCategoryUseCase:     getVideoByCategoryUseCase,
 		UpdateVideoToPublishedUseCase: updateVideoToPublishedUseCase,
 	}
 }

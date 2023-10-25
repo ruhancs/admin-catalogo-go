@@ -76,7 +76,8 @@ func main() {
 	deleteCategoryUseCase := factory.DeleteCategoryUsecaseFactory(db, eventDispatcher)
 
 	categoryIDValidator := factory.CategoryIDValidator(db)
-	registerVideoUseCase := factory.RegisterVideoUseCaseFactory(db, eventDispatcher, s3Client, categoryIDValidator)
+	registerVideoFilesUseCase := factory.RegisterVideoFileUseCaseFactory(db, eventDispatcher, s3Client, categoryIDValidator)
+	registerVideoMetaUseCase := factory.RegisterVideoMetaUseCaseFactory(db, eventDispatcher, s3Client, categoryIDValidator)
 	listVideosUseCase := factory.ListVideosUsecaseFactory(db)
 	getVideoByIDUseCase := factory.GetVideoByIDUsecaseFactory(db)
 	getVideoByCategoryUseCase := factory.GetVideoByCategoryUsecaseFactory(db)
@@ -87,7 +88,8 @@ func main() {
 		*getCategoryUseCase,
 		*deleteCategoryUseCase,
 		*listCategoryUseCase,
-		*registerVideoUseCase,
+		*registerVideoFilesUseCase,
+		*registerVideoMetaUseCase,
 		*listVideosUseCase,
 		*getVideoByIDUseCase,
 		*getVideoByCategoryUseCase,

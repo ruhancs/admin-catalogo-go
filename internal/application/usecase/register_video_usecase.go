@@ -3,18 +3,18 @@ package usecase
 import (
 	"admin-catalogo-go/internal/application/dto"
 	"admin-catalogo-go/internal/application/validation"
-	"admin-catalogo-go/internal/domain/entity"
 	"admin-catalogo-go/internal/domain/gateway"
 	"admin-catalogo-go/internal/infra/cloud"
 	"admin-catalogo-go/pkg/events"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-type RegisterVideoUseCase struct {
+type RegisterVideoFileUseCase struct {
 	VideoRepository      gateway.VideoRepositoryInterface
 	VideoRegisteredEvent events.EventInterface
 	EventDispatcher      events.EventDispatcherInterface
@@ -22,63 +22,107 @@ type RegisterVideoUseCase struct {
 	CategoryIDValidator  *validation.CategoryIDsValidator
 }
 
-func NewRegisterVideoUseCase(
+func NewRegisterVideoFileUseCase(
 	repository gateway.VideoRepositoryInterface,
 	event events.EventInterface,
 	evDispatcher events.EventDispatcherInterface,
 	s3Client *s3.S3,
-	categoryIDValidator  *validation.CategoryIDsValidator,
-) *RegisterVideoUseCase {
-	return &RegisterVideoUseCase{
+	categoryIDValidator *validation.CategoryIDsValidator,
+) *RegisterVideoFileUseCase {
+	return &RegisterVideoFileUseCase{
 		VideoRepository:      repository,
 		VideoRegisteredEvent: event,
 		EventDispatcher:      evDispatcher,
 		S3Client:             s3Client,
-		CategoryIDValidator: categoryIDValidator,
+		CategoryIDValidator:  categoryIDValidator,
 	}
 }
 
-func (usecase *RegisterVideoUseCase) Execute(ctx context.Context, input dto.RegisterVideoInputDto) (dto.RegisterVideoOutputDto, error) {
-	var outputDto dto.RegisterVideoOutputDto
-	outputDto.Title = "input.Title"
-	outputDto.Description = "input.Description"
-	outputDto.YearLaunched = 2004 //input.YearLaunched
-
-	//check categories ids
-	validCategoriesIs, _ := usecase.CategoryIDValidator.ValidateCategoriesIDs(ctx, input.CategoriesIDs)
+func (usecase *RegisterVideoFileUseCase) Execute(ctx context.Context, video_id string, input dto.RegisterVideoFilesInputDto) (dto.RegisterVideoFilesOutputDto, error) {
+	var outputDto dto.RegisterVideoFilesOutputDto
+	video, err := usecase.VideoRepository.GetVideoByID(ctx, video_id)
+	if err != nil {
+		return dto.RegisterVideoFilesOutputDto{}, err
+	}
 
 	//channel para controle de criacaco de threads, evitar lentidao no sistema
-	controlChannel := make(chan struct{}, 300)
-	errorUploadChan := make(chan string)
+	controlChannel := make(chan struct{}, 100)
+	//defer close(controlChannel)
+	errorUploadChanBanner := make(chan string)
+	//defer close(errorUploadChanBanner)
+	errorUploadChanVideo := make(chan string)
+	//defer close(errorUploadChanVideo)
+	errCountChan := make(chan error, 5)
+	//defer close(errCountChan)
+	//var wg *sync.WaitGroup
 	controlChannel <- struct{}{}
-	go cloud.UploadFileToS3(input.VideoName, input.Video, usecase.S3Client, os.Getenv("VIDEO_BUCKET_NAME"), errorUploadChan, controlChannel)
+	//wg.Add(1)
+	go cloud.UploadFileToS3(
+		video.Title, 
+		input.Video, 
+		usecase.S3Client, 
+		os.Getenv("VIDEO_BUCKET_NAME"), 
+		errorUploadChanVideo, 
+		controlChannel, 
+		errCountChan)
 	controlChannel <- struct{}{}
-	go cloud.UploadFileToS3(input.BannerName, input.Banner, usecase.S3Client, os.Getenv("VIDEO_BUCKET_NAME"), errorUploadChan, controlChannel)
+	//wg.Add(1)
+	go cloud.UploadFileToS3(
+		video.ID, 
+		input.Banner, 
+		usecase.S3Client, 
+		os.Getenv("VIDEO_BUCKET_NAME"), 
+		errorUploadChanBanner, 
+		controlChannel, 
+		errCountChan)
 	go func() {
 		for {
 			select {
-			case filename := <-errorUploadChan:
+			case filename := <-errorUploadChanBanner:
 				controlChannel <- struct{}{}
-				go cloud.UploadFileToS3(filename, input.Banner, usecase.S3Client, os.Getenv("VIDEO_BUCKET_NAME"), errorUploadChan, controlChannel)
+				//wg.Add(1)
+				go cloud.UploadFileToS3(
+					filename, 
+					input.Banner, 
+					usecase.S3Client, 
+					os.Getenv("VIDEO_BUCKET_NAME"), 
+					errorUploadChanBanner, 
+					controlChannel, 
+					errCountChan)
+			case filename := <-errorUploadChanVideo:
+				controlChannel <- struct{}{}
+				//wg.Add(1)
+				go cloud.UploadFileToS3(
+					filename, 
+					input.Video, 
+					usecase.S3Client, 
+					os.Getenv("VIDEO_BUCKET_NAME"), 
+					errorUploadChanVideo, 
+					controlChannel, 
+					errCountChan)
 			}
 		}
 	}()
-	bannerUrl := fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", os.Getenv("VIDEO_BUCKET_NAME"), input.BannerName)
-	videoUrl := fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", os.Getenv("VIDEO_BUCKET_NAME"), input.VideoName)
-	outputDto.Banner_Url = bannerUrl
-	outputDto.Video_Url = videoUrl
-
-	video, err := entity.NewVideo("input.Title", "input.Description", 2004, 2, bannerUrl, videoUrl, validCategoriesIs)
-	if err != nil {
-		return dto.RegisterVideoOutputDto{}, err
+	//wg.Wait()
+	if len(errCountChan) == 5 {
+		return dto.RegisterVideoFilesOutputDto{}, errors.New("error to upload file to bucket")
 	}
+	bannerUrl := fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", os.Getenv("VIDEO_BUCKET_NAME"), video.ID)
+	videoUrl := fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", os.Getenv("VIDEO_BUCKET_NAME"), video.Title)
+
+	_, err = usecase.VideoRepository.UpdateFiles(ctx, video.ID, videoUrl, bannerUrl)
+	if err != nil {
+		return dto.RegisterVideoFilesOutputDto{}, err
+	}
+
+	outputDto.Title = video.Title
+	outputDto.Description = video.Description
+	outputDto.YearLaunched = video.YearLaunched
 	outputDto.Duration = video.Duration
 	outputDto.IsPublished = video.IsPublished
-
-	err = usecase.VideoRepository.Insert(ctx, video)
-	if err != nil {
-		return dto.RegisterVideoOutputDto{}, err
-	}
+	outputDto.Banner_Url = bannerUrl
+	outputDto.Video_Url = videoUrl
+	outputDto.CategoriesIDs = video.CategoriesID
 
 	usecase.VideoRegisteredEvent.SetPayload(outputDto)
 	usecase.EventDispatcher.Dispatch(usecase.VideoRegisteredEvent)
