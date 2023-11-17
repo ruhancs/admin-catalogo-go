@@ -31,14 +31,8 @@ type RegisterVideoFilesInputDto struct {
 }
 
 type RegisterVideoFilesOutputDto struct {
-	Title         string   `json:"title"`
-	Description   string   `json:"description"`
-	YearLaunched  int      `json:"year_launched"`
-	CategoriesIDs []string `json:"categories_ids"`
-	Video_Url     string   `json:"video_url"`
-	Banner_Url    string   `json:"banner_url"`
-	Duration      float64  `json:"duration"`
-	IsPublished   bool     `json:"is_published"`
+	ResourceID         string   `json:"resource_id"`
+	FilePath   string   `json:"file_path"`
 }
 
 type ListVideoInputDto struct {

@@ -12,26 +12,26 @@ import (
 )
 
 func RegisterVideoFileUseCaseFactory(
-	db *sql.DB, 
-	eventDispatcher events.EventDispatcherInterface, 
+	db *sql.DB,
+	eventDispatcher events.EventDispatcherInterface,
 	s3Client *s3.S3,
 	categoryIDValidator *validation.CategoryIDsValidator,
 ) *usecase.RegisterVideoFileUseCase {
 	videoRepository := repository.NewVideoRepository(db)
-	videoRegisteredEvent := event.NewVideoRegistered()
-	videoRegisteredUseCase := usecase.NewRegisterVideoFileUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
+	videoRegisteredEvent := event.NewVideoFileUploaded()
+	videoRegisteredUseCase := usecase.NewRegisterVideoFileUseCase(videoRepository, videoRegisteredEvent, eventDispatcher, s3Client, categoryIDValidator)
 	return videoRegisteredUseCase
 }
 
 func RegisterVideoMetaUseCaseFactory(
-	db *sql.DB, 
-	eventDispatcher events.EventDispatcherInterface, 
+	db *sql.DB,
+	eventDispatcher events.EventDispatcherInterface,
 	s3Client *s3.S3,
 	categoryIDValidator *validation.CategoryIDsValidator,
 ) *usecase.RegisterVideoMetaUseCase {
 	videoRepository := repository.NewVideoRepository(db)
 	videoRegisteredEvent := event.NewVideoRegistered()
-	videoRegisteredUseCase := usecase.NewRegisterVideoMetaUseCase(videoRepository,videoRegisteredEvent,eventDispatcher,s3Client,categoryIDValidator)
+	videoRegisteredUseCase := usecase.NewRegisterVideoMetaUseCase(videoRepository, videoRegisteredEvent, eventDispatcher, s3Client, categoryIDValidator)
 	return videoRegisteredUseCase
 }
 
@@ -54,11 +54,11 @@ func GetVideoByCategoryUsecaseFactory(db *sql.DB) *usecase.GetVideoByCategoryUse
 }
 
 func UpdateVideoPublishedUseCaseFactory(
-	db *sql.DB, 
-	eventDispatcher events.EventDispatcherInterface, 
+	db *sql.DB,
+	eventDispatcher events.EventDispatcherInterface,
 ) *usecase.UpdateVideoToPublishUseCase {
 	videoRepository := repository.NewVideoRepository(db)
 	videoPublishedEvent := event.NewVideoPublish()
-	updateVideoPublishUseCase := usecase.NewUpdateVideoToPublishUseCase(videoRepository,videoPublishedEvent,eventDispatcher)
+	updateVideoPublishUseCase := usecase.NewUpdateVideoToPublishUseCase(videoRepository, videoPublishedEvent, eventDispatcher)
 	return updateVideoPublishUseCase
 }

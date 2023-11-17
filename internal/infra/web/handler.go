@@ -13,12 +13,14 @@ func(app *Application) CreateCategoryHandler(w http.ResponseWriter, r *http.Requ
 	var inputDto dto.CreateCategoryInputDto
 	err := json.NewDecoder(r.Body).Decode(&inputDto)
 	if err != nil {
+		app.ObserverErrors.Inc()
 		app.errorJson(w,err,http.StatusBadRequest)
 		return
 	}
 	
 	output,err := app.CreateCategoryUseCase.Execute(r.Context(),inputDto)
 	if err != nil {
+		app.ObserverErrors.Inc()
 		app.errorJson(w,err,http.StatusBadRequest)
 		return
 	}
@@ -46,6 +48,7 @@ func (app *Application) ListcategoryHandler(w http.ResponseWriter, r *http.Reque
 	}
 	output,err := app.ListCategoryUseCase.Execute(r.Context(),inputListCategoryDto)
 	if err != nil {
+		app.ObserverErrors.Inc()
 		app.errorJson(w,err, http.StatusInternalServerError)
 		return
 	}
@@ -58,6 +61,7 @@ func (app *Application) GetCategoryByID(w http.ResponseWriter, r *http.Request) 
 
 	output,err := app.GetCategoryUseCase.Execute(r.Context(), id)
 	if err != nil {
+		app.ObserverErrors.Inc()
 		app.errorJson(w,err, http.StatusNotFound)
 		return
 	}
@@ -70,6 +74,7 @@ func (app *Application) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 
 	err := app.DeleteCategoryUseCase.Execute(r.Context(),id)
 	if err != nil {
+		app.ObserverErrors.Inc()
 		app.errorJson(w,err, http.StatusNotFound)
 		return
 	}

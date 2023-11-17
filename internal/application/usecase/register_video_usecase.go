@@ -14,6 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+//var Mutex *sync.Mutex
+
 type RegisterVideoFileUseCase struct {
 	VideoRepository      gateway.VideoRepositoryInterface
 	VideoRegisteredEvent events.EventInterface
@@ -58,22 +60,22 @@ func (usecase *RegisterVideoFileUseCase) Execute(ctx context.Context, video_id s
 	controlChannel <- struct{}{}
 	//wg.Add(1)
 	go cloud.UploadFileToS3(
-		video.Title, 
-		input.Video, 
-		usecase.S3Client, 
-		os.Getenv("VIDEO_BUCKET_NAME"), 
-		errorUploadChanVideo, 
-		controlChannel, 
+		video.Title,
+		input.Video,
+		usecase.S3Client,
+		os.Getenv("VIDEO_BUCKET_NAME"),
+		errorUploadChanVideo,
+		controlChannel,
 		errCountChan)
 	controlChannel <- struct{}{}
 	//wg.Add(1)
 	go cloud.UploadFileToS3(
-		video.ID, 
-		input.Banner, 
-		usecase.S3Client, 
-		os.Getenv("VIDEO_BUCKET_NAME"), 
-		errorUploadChanBanner, 
-		controlChannel, 
+		video.ID,
+		input.Banner,
+		usecase.S3Client,
+		os.Getenv("VIDEO_BUCKET_NAME"),
+		errorUploadChanBanner,
+		controlChannel,
 		errCountChan)
 	go func() {
 		for {
@@ -82,23 +84,23 @@ func (usecase *RegisterVideoFileUseCase) Execute(ctx context.Context, video_id s
 				controlChannel <- struct{}{}
 				//wg.Add(1)
 				go cloud.UploadFileToS3(
-					filename, 
-					input.Banner, 
-					usecase.S3Client, 
-					os.Getenv("VIDEO_BUCKET_NAME"), 
-					errorUploadChanBanner, 
-					controlChannel, 
+					filename,
+					input.Banner,
+					usecase.S3Client,
+					os.Getenv("VIDEO_BUCKET_NAME"),
+					errorUploadChanBanner,
+					controlChannel,
 					errCountChan)
 			case filename := <-errorUploadChanVideo:
 				controlChannel <- struct{}{}
 				//wg.Add(1)
 				go cloud.UploadFileToS3(
-					filename, 
-					input.Video, 
-					usecase.S3Client, 
-					os.Getenv("VIDEO_BUCKET_NAME"), 
-					errorUploadChanVideo, 
-					controlChannel, 
+					filename,
+					input.Video,
+					usecase.S3Client,
+					os.Getenv("VIDEO_BUCKET_NAME"),
+					errorUploadChanVideo,
+					controlChannel,
 					errCountChan)
 			}
 		}
@@ -115,14 +117,8 @@ func (usecase *RegisterVideoFileUseCase) Execute(ctx context.Context, video_id s
 		return dto.RegisterVideoFilesOutputDto{}, err
 	}
 
-	outputDto.Title = video.Title
-	outputDto.Description = video.Description
-	outputDto.YearLaunched = video.YearLaunched
-	outputDto.Duration = video.Duration
-	outputDto.IsPublished = video.IsPublished
-	outputDto.Banner_Url = bannerUrl
-	outputDto.Video_Url = videoUrl
-	outputDto.CategoriesIDs = video.CategoriesID
+	outputDto.ResourceID = video.ID
+	outputDto.FilePath = video.Title
 
 	usecase.VideoRegisteredEvent.SetPayload(outputDto)
 	usecase.EventDispatcher.Dispatch(usecase.VideoRegisteredEvent)

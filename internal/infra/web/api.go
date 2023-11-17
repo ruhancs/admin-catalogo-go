@@ -5,9 +5,12 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Application struct {
+	ObserverErrors                prometheus.Counter
 	CreateCategoryUseCase         usecase.CreateCategoryUseCase
 	GetCategoryUseCase            usecase.GetCategoryUseCase
 	DeleteCategoryUseCase         usecase.DeleteCategoryUseCase
@@ -21,6 +24,7 @@ type Application struct {
 }
 
 func NewApplication(
+	observerErrors prometheus.Counter,
 	createCategoryUseCase usecase.CreateCategoryUseCase,
 	getCategoryUseCase usecase.GetCategoryUseCase,
 	deleteCategoryUseCase usecase.DeleteCategoryUseCase,
@@ -33,6 +37,7 @@ func NewApplication(
 	updateVideoToPublishedUseCase usecase.UpdateVideoToPublishUseCase,
 ) *Application {
 	return &Application{
+		ObserverErrors:                observerErrors,
 		CreateCategoryUseCase:         createCategoryUseCase,
 		ListCategoryUseCase:           listCategoryUseCase,
 		GetCategoryUseCase:            getCategoryUseCase,
@@ -51,8 +56,8 @@ func (app *Application) Server() error {
 		Addr:              ":8000",
 		Handler:           app.routes(),
 		IdleTimeout:       30 * time.Second,
-		ReadTimeout:       30 * time.Second,
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       1 * time.Second,
+		ReadHeaderTimeout: 1 * time.Second,
 		WriteTimeout:      5 * time.Second,
 	}
 
